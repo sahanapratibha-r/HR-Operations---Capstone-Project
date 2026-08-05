@@ -56,10 +56,13 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
                 st.write("Based on Company HR Policy Manuals: For specific inquiries outside these parameters, please contact your designated HR Operations partner or submit a ticket through the HR Helpdesk.")
                 
     with tab2:
-        st.markdown(f"Search across your entire company directory ({len(df_hr) + len(df_emp)} total profiles loaded from HR and Employee master sheets).")
-        search_term = st.text_input("Search by skill, name, department, or designation:", placeholder="e.g., Payroll, Python, Manager, Safety, POSH")
+        st.markdown(f"Search across your entire company directory ({len(df_hr) + len(df_emp)} total profiles loaded).")
+        search_term = st.text_input("Search by skill, name, department, or designation:", placeholder="e.g., Sopesh, Sahana, Python, Manager")
+        
         if search_term:
             combined_records = []
+            
+            # Load HR Team records
             if not df_hr.empty:
                 for _, row in df_hr.iterrows():
                     combined_records.append({
@@ -67,29 +70,40 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
                         "name": str(row.get('Employee Name', '')),
                         "designation": str(row.get('Designation', '')),
                         "department": "Human Resources",
-                        "skills": str(row.get('Core Skills', '')),
+                        "skills": str(row.get('CoreSkills', '')) + " " + str(row.get('Bio', '')),
                         "location": str(row.get('Location', '')),
                         "email": str(row.get('Email', ''))
                     })
+            
+            # Load General Employee records
             if not df_emp.empty:
                 for _, row in df_emp.iterrows():
                     combined_records.append({
                         "id": str(row.get('Employee ID', '')),
                         "name": str(row.get('Employee Name', '')),
                         "designation": str(row.get('Designation', '')),
-                        "department": str(row.get('Location', 'General')),
+                        "department": "General Employee",
                         "skills": str(row.get('Bio', '')),
                         "location": str(row.get('Location', '')),
                         "email": str(row.get('Email', ''))
                     })
             
-            results = [e for e in combined_records if search_term.lower() in f"{e['name']} {e['skills']} {e['designation']} {e['department']}".lower()]
+            # Flexible case-insensitive search across all fields
+            results = []
+            for emp in combined_records:
+                searchable_text = f"{emp['id']} {emp['name']} {emp['designation']} {emp['department']} {emp['skills']} {emp['location']} {emp['email']}".lower()
+                if search_term.lower() in searchable_text:
+                    results.append(emp)
+            
             st.write(f"### Found {len(results)} Matching Expert(s):")
-            for emp in results[:10]:
-                with st.expander(f"👤 {emp['name']} — {emp['designation']} ({emp['department']})"):
-                    st.markdown(f"**Employee ID:** {emp['id']} | **Location:** {emp['location']}")
-                    st.markdown(f"**Skills / Profile Info:** {emp['skills']}")
-                    st.markdown(f"**Email:** {emp['email']}")
+            if len(results) > 0:
+                for emp in results[:15]:
+                    with st.expander(f"👤 {emp['name']} — {emp['designation']} ({emp['department']})"):
+                        st.markdown(f"**Employee ID:** {emp['id']} | **Location:** {emp['location']}")
+                        st.markdown(f"**Skills / Bio:** {emp['skills']}")
+                        st.markdown(f"**Email:** {emp['email']}")
+            else:
+                st.warning("No matching profiles found. Try searching for names like 'Sopesh' or 'Sahana', or skills like 'Manager'.")
 
 elif app_mode == "HRSS Operations (Onboarding & KYC)":
     st.subheader("🛠️ HRSS Operations & Onboarding Hub")
