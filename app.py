@@ -19,7 +19,6 @@ app_mode = st.sidebar.selectbox(
 def load_all_data():
     df_hr, df_emp = pd.DataFrame(), pd.DataFrame()
     
-    # Try different possible paths for Streamlit Cloud deployment
     paths_hr = ['HR Team Information.xlsx', './HR Team Information.xlsx', 'data/HR Team Information.xlsx']
     for p in paths_hr:
         try:
@@ -41,6 +40,7 @@ def load_all_data():
     return df_hr, df_emp
 
 df_hr, df_emp = load_all_data()
+
 if app_mode == "Employee Self-Service (Policy & Experts)":
     st.subheader("💬 Employee Self-Service Portal")
     
@@ -65,14 +65,13 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
             else:
                 st.write("Based on Company HR Policy Manuals: For specific inquiries outside these parameters, please contact your designated HR Operations partner or submit a ticket through the HR Helpdesk.")
                 
-   with tab2:
+    with tab2:
         st.markdown(f"Search across your entire company directory (**{len(df_hr) + len(df_emp)} total profiles loaded**).")
         search_term = st.text_input("Search by skill, name, department, or designation:", placeholder="Type a keyword to search...")
         
         if search_term:
             combined_records = []
             
-            # Load HR Team records
             if not df_hr.empty:
                 for _, row in df_hr.iterrows():
                     combined_records.append({
@@ -85,7 +84,6 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
                         "email": str(row.get('Email', ''))
                     })
             
-            # Load General Employee records
             if not df_emp.empty:
                 for _, row in df_emp.iterrows():
                     combined_records.append({
@@ -98,7 +96,6 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
                         "email": str(row.get('Email', ''))
                     })
             
-            # Flexible case-insensitive search across all fields
             results = []
             for emp in combined_records:
                 searchable_text = f"{emp['id']} {emp['name']} {emp['designation']} {emp['department']} {emp['skills']} {emp['location']} {emp['email']}".lower()
