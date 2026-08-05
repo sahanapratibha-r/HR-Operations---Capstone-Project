@@ -14,23 +14,33 @@ app_mode = st.sidebar.selectbox(
     ["Employee Self-Service (Policy & Experts)", "HRSS Operations (Onboarding & KYC)"]
 )
 
-# Load real datasets uploaded by the user
+# Load real datasets robustly with path fallback
 @st.cache_data
 def load_all_data():
-    try:
-        df_hr = pd.read_excel('HR Team Information.xlsx', sheet_name='Sheet1')
-    except Exception:
-        df_hr = pd.DataFrame()
-        
-    try:
-        df_emp = pd.read_excel('Employee Information.xlsx', sheet_name='Sheet1')
-    except Exception:
-        df_emp = pd.DataFrame()
-        
+    df_hr, df_emp = pd.DataFrame(), pd.DataFrame()
+    
+    # Try different possible paths for Streamlit Cloud deployment
+    paths_hr = ['HR Team Information.xlsx', './HR Team Information.xlsx', 'data/HR Team Information.xlsx']
+    for p in paths_hr:
+        try:
+            df_hr = pd.read_excel(p)
+            if not df_hr.empty:
+                break
+        except:
+            continue
+            
+    paths_emp = ['Employee Information.xlsx', './Employee Information.xlsx', 'data/Employee Information.xlsx']
+    for p in paths_emp:
+        try:
+            df_emp = pd.read_excel(p)
+            if not df_emp.empty:
+                break
+        except:
+            continue
+            
     return df_hr, df_emp
 
 df_hr, df_emp = load_all_data()
-
 if app_mode == "Employee Self-Service (Policy & Experts)":
     st.subheader("💬 Employee Self-Service Portal")
     
