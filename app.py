@@ -65,27 +65,16 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
             else:
                 st.write("Based on Company HR Policy Manuals: For specific inquiries outside these parameters, please contact your designated HR Operations partner or submit a ticket through the HR Helpdesk.")
                 
-    with tab2:
-        # Safely load data with correct column names
-        try:
-            df_hr_load = pd.read_excel('HR Team Information.xlsx')
-        except:
-            df_hr_load = pd.DataFrame()
-            
-        try:
-            df_emp_load = pd.read_excel('Employee Information.xlsx')
-        except:
-            df_emp_load = pd.DataFrame()
-
-        st.markdown(f"Search across your entire company directory (**{len(df_hr_load) + len(df_emp_load)} total profiles loaded**).")
+   with tab2:
+        st.markdown(f"Search across your entire company directory (**{len(df_hr) + len(df_emp)} total profiles loaded**).")
         search_term = st.text_input("Search by skill, name, department, or designation:", placeholder="Type a keyword to search...")
         
         if search_term:
             combined_records = []
             
             # Load HR Team records
-            if not df_hr_load.empty:
-                for _, row in df_hr_load.iterrows():
+            if not df_hr.empty:
+                for _, row in df_hr.iterrows():
                     combined_records.append({
                         "id": str(row.get('Employee ID', '')),
                         "name": str(row.get('Employee Name', '')),
@@ -97,8 +86,8 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
                     })
             
             # Load General Employee records
-            if not df_emp_load.empty:
-                for _, row in df_emp_load.iterrows():
+            if not df_emp.empty:
+                for _, row in df_emp.iterrows():
                     combined_records.append({
                         "id": str(row.get('Employee ID', '')),
                         "name": str(row.get('Employee Name', '')),
