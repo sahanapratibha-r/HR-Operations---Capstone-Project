@@ -55,29 +55,40 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
             else:
                 st.write("Based on Company HR Policy Manuals: For specific inquiries outside these parameters, please contact your designated HR Operations partner or submit a ticket through the HR Helpdesk.")
                 
-    with tab2:
-        st.markdown(f"Search across your entire company directory ({len(df_hr) + len(df_emp)} total profiles loaded).")
-        search_term = st.text_input("Search by skill, name, department, or designation:", placeholder="e.g., Sopesh, Sahana, Python, Manager")
+with tab2:
+        # Safely load data with correct column names
+        try:
+            df_hr_load = pd.read_excel('HR Team Information.xlsx')
+        except:
+            df_hr_load = pd.DataFrame()
+            
+        try:
+            df_emp_load = pd.read_excel('Employee Information.xlsx')
+        except:
+            df_emp_load = pd.DataFrame()
+
+        st.markdown(f"Search across your entire company directory (**{len(df_hr_load) + len(df_emp_load)} total profiles loaded**).")
+        search_term = st.text_input("Search by skill, name, department, or designation:", placeholder="Type a keyword to search...")
         
         if search_term:
             combined_records = []
             
             # Load HR Team records
-            if not df_hr.empty:
-                for _, row in df_hr.iterrows():
+            if not df_hr_load.empty:
+                for _, row in df_hr_load.iterrows():
                     combined_records.append({
                         "id": str(row.get('Employee ID', '')),
                         "name": str(row.get('Employee Name', '')),
                         "designation": str(row.get('Designation', '')),
                         "department": "Human Resources",
-                        "skills": str(row.get('CoreSkills', '')) + " " + str(row.get('Bio', '')),
+                        "skills": str(row.get('Core Skills', '')) + " " + str(row.get('Bio', '')),
                         "location": str(row.get('Location', '')),
                         "email": str(row.get('Email', ''))
                     })
             
             # Load General Employee records
-            if not df_emp.empty:
-                for _, row in df_emp.iterrows():
+            if not df_emp_load.empty:
+                for _, row in df_emp_load.iterrows():
                     combined_records.append({
                         "id": str(row.get('Employee ID', '')),
                         "name": str(row.get('Employee Name', '')),
@@ -103,7 +114,7 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
                         st.markdown(f"**Skills / Bio:** {emp['skills']}")
                         st.markdown(f"**Email:** {emp['email']}")
             else:
-                st.warning("No matching profiles found. Try searching for names like 'Sopesh' or 'Sahana', or skills like 'Manager'.")
+                st.warning("No matching profiles found. Try a different keyword or skill.")
 
 elif app_mode == "HRSS Operations (Onboarding & KYC)":
     st.subheader("🛠️ HRSS Operations & Onboarding Hub")
