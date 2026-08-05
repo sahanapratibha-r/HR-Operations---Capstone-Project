@@ -55,7 +55,7 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
             else:
                 st.write("Based on Company HR Policy Manuals: For specific inquiries outside these parameters, please contact your designated HR Operations partner or submit a ticket through the HR Helpdesk.")
                 
-with tab2:
+    with tab2:
         # Safely load data with correct column names
         try:
             df_hr_load = pd.read_excel('HR Team Information.xlsx')
