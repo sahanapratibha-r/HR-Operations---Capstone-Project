@@ -14,29 +14,30 @@ app_mode = st.sidebar.selectbox(
     ["Employee Self-Service (Policy & Experts)", "HRSS Operations (Onboarding & KYC)"]
 )
 
-# Load real datasets robustly with path fallback
+import os
+import streamlit as st
+import pandas as pd
+
+# Load real datasets using absolute path relative to app.py
 @st.cache_data
 def load_all_data():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    hr_file = os.path.join(base_dir, 'HR Team Information.xlsx')
+    emp_file = os.path.join(base_dir, 'Employee Information.xlsx')
+    
     df_hr, df_emp = pd.DataFrame(), pd.DataFrame()
     
-    paths_hr = ['HR Team Information.xlsx', './HR Team Information.xlsx', 'data/HR Team Information.xlsx']
-    for p in paths_hr:
-        try:
-            df_hr = pd.read_excel(p)
-            if not df_hr.empty:
-                break
-        except:
-            continue
-            
-    paths_emp = ['Employee Information.xlsx', './Employee Information.xlsx', 'data/Employee Information.xlsx']
-    for p in paths_emp:
-        try:
-            df_emp = pd.read_excel(p)
-            if not df_emp.empty:
-                break
-        except:
-            continue
-            
+    try:
+        df_hr = pd.read_excel(hr_file)
+    except Exception as e:
+        st.error(f"Error loading HR Team file: {e}")
+        
+    try:
+        df_emp = pd.read_excel(emp_file)
+    except Exception as e:
+        st.error(f"Error loading Employee file: {e}")
+        
     return df_hr, df_emp
 
 df_hr, df_emp = load_all_data()
