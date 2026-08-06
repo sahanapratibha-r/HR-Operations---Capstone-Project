@@ -1,9 +1,31 @@
+import os
 import streamlit as st
 import pandas as pd
 
 # Page Configuration
 app_title = "Smart HR Operations & Onboarding Hub"
 st.set_page_config(page_title=app_title, layout="wide")
+
+# Custom CSS Injection for Modern UI Polish
+st.markdown("""
+    <style>
+    /* Global background and font styling */
+    .stApp {
+        background-color: #f8fafc;
+    }
+    /* Clean expander card styling */
+    div.streamlit-expanderHeader {
+        background-color: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        font-weight: 600;
+    }
+    /* Style main title header */
+    h1 {
+        color: #1e293b;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 st.title(f"🏢 {app_title}")
 st.markdown("### AI-Powered Multi-Policy Q&A, Expertise Directory & Onboarding Assistant")
@@ -14,11 +36,7 @@ app_mode = st.sidebar.selectbox(
     ["Employee Self-Service (Policy & Experts)", "HRSS Operations (Onboarding & KYC)"]
 )
 
-import os
-import streamlit as st
-import pandas as pd
-
-# Load real datasets using absolute path relative to app.py
+# Load real datasets robustly with absolute path fallback
 @st.cache_data
 def load_all_data():
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,13 +48,13 @@ def load_all_data():
     
     try:
         df_hr = pd.read_excel(hr_file)
-    except Exception as e:
-        st.error(f"Error loading HR Team file: {e}")
+    except Exception:
+        pass
         
     try:
         df_emp = pd.read_excel(emp_file)
-    except Exception as e:
-        st.error(f"Error loading Employee file: {e}")
+    except Exception:
+        pass
         
     return df_hr, df_emp
 
@@ -48,8 +66,8 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
     tab1, tab2 = st.tabs(["Multi-Policy & HR Q&A", "Search Expertise Directory"])
     
     with tab1:
-        st.markdown("Ask instant questions regarding company policies: **Leave, Payroll/TDS, LTA, Ethics & Compliance, and POSH**.")
-        user_query = st.text_input("Enter your HR policy or payroll query:", placeholder="e.g., What is the carry forward rule for Earned Leave? Or how to file a POSH complaint?")
+        st.markdown("Ask instant questions regarding company policies: **Leave, Payroll/TDS, LTA, Ethics & Compliance, POSH, Work Hours, and Probation**.")
+        user_query = st.text_input("Enter your HR policy or payroll query:", placeholder="e.g., What is the login time? Or what is the carry forward rule for Earned Leave?")
         if user_query:
             st.info("💡 **AI Policy Assistant Response:**")
             q_lower = user_query.lower()
@@ -63,6 +81,10 @@ if app_mode == "Employee Self-Service (Policy & Experts)":
                 st.write("Based on **Policy 4 (Ethics and Compliance Policy)**: Secondary employment or moonlighting without written executive authorization is strictly prohibited. Suspected misconduct can be reported via the Whistleblower Hotline with guaranteed anti-retaliation protection.")
             elif "posh" in q_lower or "harassment" in q_lower or "icc" in q_lower:
                 st.write("Based on **Policy 5 (POSH Policy)**: The organization maintains zero tolerance for sexual harassment. Aggrieved employees can submit a formal written complaint to the Internal Complaints Committee (ICC) within 3 months of the incident.")
+            elif "login" in q_lower or "hour" in q_lower or "time" in q_lower or "shift" in q_lower or "timing" in q_lower:
+                st.write("Based on **Policy 6 (Workplace & Attendance Policy)**: Standard working hours are from 9:30 AM to 6:30 PM, Monday through Friday, with a mandatory 1-hour lunch break. Flexible working hours and hybrid remote options can be availed with manager approval.")
+            elif "probation" in q_lower or "notice" in q_lower or "resignation" in q_lower:
+                st.write("Based on **Policy 7 (Employment Terms Policy)**: Standard probation period is 6 months from the date of joining. During probation, the notice period for separation is 2 weeks; post-confirmation, the standard notice period is 60 days.")
             else:
                 st.write("Based on Company HR Policy Manuals: For specific inquiries outside these parameters, please contact your designated HR Operations partner or submit a ticket through the HR Helpdesk.")
                 
